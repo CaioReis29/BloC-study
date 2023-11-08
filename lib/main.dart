@@ -1,4 +1,7 @@
-import 'package:bloc_study/bloc/user_bloc.dart';
+import 'dart:math';
+
+import 'package:bloc_study/product/bloc/product_bloc.dart';
+import 'package:bloc_study/user/bloc/user_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
@@ -16,32 +19,44 @@ class BlocStudy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final randola = Random();
     return Scaffold(
       appBar: AppBar(
         title: const Text('BloC study'),
       ),
       body: SizedBox.expand(
-        child: BlocProvider(
-          create: (context) => UserBloc(),
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider<UserBloc>(
+              create: (context) => UserBloc(),
+            ),
+            BlocProvider<ProductBloc>(
+              create: (context) => ProductBloc(),
+            ),
+          ],
           child: BlocBuilder<UserBloc, UserState>(
             builder: (context, state) {
               if (state is UserInitial) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      "Usuário não logado",
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    ElevatedButton(
-                      onPressed: () => context.read<UserBloc>().add(
-                            const UserLogin(userId: "1", userName: "Caio"),
-                          ),
-                      child: const Text("Login"),
-                    ),
-                  ],
+                return BlocBuilder<ProductBloc, ProductState>(
+                  builder: (context, state) {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "Usuário não logado",
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        ElevatedButton(
+                          onPressed: () => context.read<UserBloc>().add(
+                                const UserLogin(userId: "1", userName: "Caio"),
+                              ),
+                          child: const Text("Login"),
+                        ),
+                      ],
+                    );
+                  },
                 );
               } else if (state is UserLoggedIn) {
                 return Column(
@@ -69,7 +84,9 @@ class BlocStudy extends StatelessWidget {
                     ),
                     ElevatedButton(
                       onPressed: () => context.read<UserBloc>().add(
-                            const UserLogin(userId: "2", userName: "Reis"),
+                            UserLogin(
+                                userId: randola.nextInt(1000).toString(),
+                                userName: "Reis"),
                           ),
                       child: const Text("Mudar valor"),
                     ),
